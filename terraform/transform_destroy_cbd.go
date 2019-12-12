@@ -179,6 +179,7 @@ func (t *CBDEdgeTransformer) Transform(g *Graph) error {
 				if _, ok := e.Source().(GraphNodeCreator); ok {
 					log.Printf("[TRACE] CBDEdgeTransformer: removing non DestroyEdge to CBD destroy node: %s => %s", dag.VertexName(e.Source()), dag.VertexName(e.Target()))
 					g.RemoveEdge(e)
+					g.Connect(dag.BasicEdge(e.Target(), e.Source()))
 				}
 			}
 		}
