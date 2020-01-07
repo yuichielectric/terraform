@@ -90,7 +90,7 @@ func (t *ForcedCBDTransformer) hasCBDDescendent(g *Graph, v dag.Vertex) bool {
 		return true
 	}
 
-	for _, ov := range s.List() {
+	for _, ov := range s {
 		dn, ok := ov.(GraphNodeDestroyerCBD)
 		if !ok {
 			continue
@@ -285,7 +285,7 @@ func (t *CBDEdgeTransformer) depMap(g *Graph, destroyMap map[string][]dag.Vertex
 		// finding B in A => B. Since dependencies can span modules, walk all
 		// descendents of the resource.
 		des, _ := g.Descendents(v)
-		for _, v := range des.List() {
+		for _, v := range des {
 			// We're looking for resources.
 			rn, ok := v.(GraphNodeResource)
 			if !ok {

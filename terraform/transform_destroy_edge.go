@@ -249,7 +249,7 @@ func (t *DestroyEdgeTransformer) Transform(g *Graph) error {
 		}
 
 		refs := make([]dag.Vertex, 0, vs.Len())
-		for _, raw := range vs.List() {
+		for _, raw := range vs {
 			refs = append(refs, raw.(dag.Vertex))
 		}
 
@@ -333,12 +333,11 @@ func (t *DestroyEdgeTransformer) pruneResources(g *Graph) error {
 		}
 
 		// if there are only destroy dependencies, we don't need this node
-		des, err := g.Descendents(n)
+		descendents, err := g.Descendents(n)
 		if err != nil {
 			return err
 		}
 
-		descendents := des.List()
 		nonDestroyInstanceFound := false
 		for _, v := range descendents {
 			if _, ok := v.(*NodeApplyableResourceInstance); ok {
@@ -352,8 +351,8 @@ func (t *DestroyEdgeTransformer) pruneResources(g *Graph) error {
 		}
 
 		// connect all the through-edges, then delete the node
-		for _, d := range g.DownEdges(n).List() {
-			for _, u := range g.UpEdges(n).List() {
+		for _, d := range g.DownEdges(n) {
+			for _, u := range g.UpEdges(n) {
 				g.Connect(dag.BasicEdge(u, d))
 			}
 		}
