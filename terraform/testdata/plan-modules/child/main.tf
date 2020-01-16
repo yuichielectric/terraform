@@ -1,3 +1,4 @@
 resource "aws_instance" "foo" {
-    num = "2"
+  count = 2
+  num = "2"
 }
