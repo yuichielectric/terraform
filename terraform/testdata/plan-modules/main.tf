@@ -3,6 +3,10 @@ module "child" {
   source = "./child"
 }
 
+output "out" {
+  value = module.child[*].out
+}
+
 resource "aws_instance" "foo" {
   num = 2
 }

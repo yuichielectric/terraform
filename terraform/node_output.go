@@ -9,6 +9,53 @@ import (
 	"github.com/hashicorp/terraform/lang"
 )
 
+// NodePlannableOutput is the placeholder for an output that has not yet had
+// it's module path expanded.
+type NodePlannableOutput struct {
+	Addr   addrs.OutputValue
+	Module addrs.Module
+	Config *configs.Output
+}
+
+var (
+	//_ GraphNodeSubPath       = (*NodePlannableOutput)(nil)
+	_ RemovableIfNotTargeted = (*NodePlannableOutput)(nil)
+	//_ GraphNodeEvalable          = (*NodePlannableOutput)(nil)
+	//_ GraphNodeReferencer        = (*NodePlannableOutput)(nil)
+	//_ GraphNodeDynamicExpandable = (*NodePlannableOutput)(nil)
+)
+
+func (n *NodePlannableOutput) DynamicExpand(ctx EvalContext) (*Graph, error) {
+	var g Graph
+	expander := ctx.InstanceExpander()
+	for _, module := range expander.ExpandModule(ctx.Path().Module()) {
+		o := &NodeApplyableOutput{
+			Addr:   n.Addr.Absolute(module),
+			Config: n.Config,
+		}
+		g.Add(o)
+	}
+	return &g, nil
+}
+
+func (n *NodePlannableOutput) Name() string {
+	return fmt.Sprintf("%s.%s", n.Module, n.Addr.Name)
+}
+
+//// GraphNodeSubPath
+//func (n *NodePlannableOutput) Path() addrs.ModuleInstance {
+//}
+
+// RemovableIfNotTargeted
+func (n *NodePlannableOutput) RemoveIfNotTargeted() bool {
+	return true
+}
+
+// GraphNodeTargetDownstream
+func (n *NodePlannableOutput) TargetDownstream(targetedDeps, untargetedDeps *dag.Set) bool {
+	return true
+}
+
 // NodeApplyableOutput represents an output that is "applyable":
 // it is ready to be applied.
 type NodeApplyableOutput struct {
