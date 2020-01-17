@@ -10,7 +10,7 @@ import (
 )
 
 // NodePlannableOutput is the placeholder for an output that has not yet had
-// it's module path expanded.
+// its module path expanded.
 type NodePlannableOutput struct {
 	Addr   addrs.OutputValue
 	Module addrs.Module
@@ -18,8 +18,9 @@ type NodePlannableOutput struct {
 }
 
 var (
-	//_ GraphNodeSubPath       = (*NodePlannableOutput)(nil)
+	_ GraphNodeSubPath       = (*NodePlannableOutput)(nil)
 	_ RemovableIfNotTargeted = (*NodePlannableOutput)(nil)
+	_ GraphNodeReferenceable = (*NodePlannableOutput)(nil)
 	//_ GraphNodeEvalable          = (*NodePlannableOutput)(nil)
 	//_ GraphNodeReferencer        = (*NodePlannableOutput)(nil)
 	//_ GraphNodeDynamicExpandable = (*NodePlannableOutput)(nil)
@@ -42,9 +43,25 @@ func (n *NodePlannableOutput) Name() string {
 	return fmt.Sprintf("%s.%s", n.Module, n.Addr.Name)
 }
 
-//// GraphNodeSubPath
-//func (n *NodePlannableOutput) Path() addrs.ModuleInstance {
-//}
+// GraphNodeSubPath
+func (n *NodePlannableOutput) Path() addrs.ModuleInstance {
+	// Return an UnkeyedInstanceShim as our placeholder,
+	// given that modules will be unexpanded at this point in the walk
+	return n.Module.UnkeyedInstanceShim()
+}
+
+// GraphNodeReferenceable
+func (n *NodePlannableOutput) ReferenceableAddrs() []addrs.Referenceable {
+	// An output in the root module can't be referenced at all.
+	if n.Module.IsRoot() {
+		return nil
+	}
+
+	// Otherwise, we can reference the output via the address itself, or the
+	// module call
+	_, call := n.Module.Call()
+	return []addrs.Referenceable{n.Addr, call}
+}
 
 // RemovableIfNotTargeted
 func (n *NodePlannableOutput) RemoveIfNotTargeted() bool {
