@@ -1,5 +1,9 @@
+locals {
+  val = 2
+}
+
 module "child" {
-  count = 2
+  count = local.val
   source = "./child"
 }
 

@@ -12,7 +12,9 @@ import (
 // Local value nodes only have one operation, common to all walk types:
 // evaluate the result and place it in state.
 type NodeLocal struct {
-	Addr   addrs.AbsLocalValue
+	Addr addrs.AbsLocalValue
+	// FIXME: Do we need Module for evaluating module expansion?
+	// Module addrs.Module
 	Config *configs.Local
 }
 
@@ -24,6 +26,31 @@ var (
 	_ GraphNodeEvalable      = (*NodeLocal)(nil)
 	_ dag.GraphNodeDotter    = (*NodeLocal)(nil)
 )
+
+// DynamicExpand for local nodes allows a count val on an expanding module
+// to be a locals value
+func (n *NodeLocal) DynamicExpand(ctx EvalContext) (*Graph, error) {
+	var g Graph
+
+	/*
+		FIXME: Currently having DynamicExpand exist but essentially do nothing
+		allows a basic local to work for count = local.val in a module
+		But likely, it should do something
+
+		Without this method, we get the "Invalid count argument: The "count" value depends on resource attributes that cannot be determined until apply, so Terraform cannot predict how many instances will be created."
+		error
+	*/
+
+	// expander := ctx.InstanceExpander()
+	// for _, module := range expander.ExpandModule(ctx.Path().Module()) {
+	// 	o := &Node??Local{
+	// 		Addr:   n.Addr,
+	// 		Config: n.Config,
+	// 	}
+	// 	g.Add(o)
+	// }
+	return &g, nil
+}
 
 func (n *NodeLocal) Name() string {
 	return n.Addr.String()
