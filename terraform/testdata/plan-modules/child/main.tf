@@ -1,9 +1,6 @@
-locals {
-  foo = "2"
-}
 resource "aws_instance" "foo" {
   count = 2
-  num = local.foo
+  num = 2
 }
 
 output "out" {
