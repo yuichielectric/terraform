@@ -1,6 +1,8 @@
+variable "foo" {}
+
 resource "aws_instance" "foo" {
   count = 2
-  num = 2
+  num = var.foo
 }
 
 output "out" {

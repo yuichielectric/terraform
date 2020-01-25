@@ -4,6 +4,7 @@ locals {
 
 module "child" {
   count = local.val
+  foo = 2
   source = "./child"
 }
 
