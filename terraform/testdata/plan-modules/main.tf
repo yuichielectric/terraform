@@ -3,10 +3,15 @@ locals {
   bar = "baz"
 }
 
+variable "myvar" {
+  default = "baz"
+}
+
+
 module "child" {
   count = local.val
   foo = 2
-  bar = local.bar
+  bar = var.myvar
   source = "./child"
 }
 
