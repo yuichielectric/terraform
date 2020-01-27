@@ -54,11 +54,7 @@ func (n *NodePlannableModuleVariable) Path() addrs.ModuleInstance {
 
 // GraphNodeReferenceable
 func (n *NodePlannableModuleVariable) ReferenceableAddrs() []addrs.Referenceable {
-	// An output in the root module can't be referenced at all.
-	if n.Module.IsRoot() {
-		return nil
-	}
-
+	// FIXME: References for module variables probably need to be thought out a bit more
 	// Otherwise, we can reference the output via the address itself, or the
 	// module call
 	_, call := n.Module.Call()
