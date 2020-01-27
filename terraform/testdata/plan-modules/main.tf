@@ -1,10 +1,12 @@
 locals {
   val = 2
+  bar = "baz"
 }
 
 module "child" {
   count = local.val
   foo = 2
+  bar = local.bar
   source = "./child"
 }
 
