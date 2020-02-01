@@ -71,10 +71,6 @@ func (n *nodeExpandModule) RemoveIfNotTargeted() bool {
 
 // GraphNodeEvalable
 func (n *nodeExpandModule) EvalTree() EvalNode {
-	// Get the ModuleCall
-	// Do this by using the CallerAddr to find the parent config
-	// And get the modulecall from that config's .modulecalls
-
 	return &evalPrepareModuleExpansion{
 		CallerAddr: n.CallerAddr,
 		Call:       n.Call,
@@ -83,6 +79,8 @@ func (n *nodeExpandModule) EvalTree() EvalNode {
 	}
 }
 
+// evalPrepareModuleExpansion is an EvalNode implementation
+// that sets the count or for_each on the instance expander
 type evalPrepareModuleExpansion struct {
 	CallerAddr addrs.ModuleInstance
 	Call       addrs.ModuleCall
