@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/addrs"
 	"github.com/hashicorp/terraform/configs"
+	"github.com/hashicorp/terraform/lang"
 	"github.com/hashicorp/terraform/states"
 )
 
@@ -39,6 +40,8 @@ func (n *nodeExpandModule) Path() addrs.ModuleInstance {
 
 // GraphNodeReferencer implementation
 func (n *nodeExpandModule) References() []*addrs.Reference {
+	var refs []*addrs.Reference
+
 	// Expansion only uses the count and for_each expressions, so this
 	// particular graph node only refers to those.
 	// Individual variable values in the module call definition might also
@@ -49,18 +52,14 @@ func (n *nodeExpandModule) References() []*addrs.Reference {
 	// our call, these references will be correctly interpreted as being
 	// in the calling module's namespace, not the namespaces of any of the
 	// child module instances we might expand to during our evaluation.
-	var ret []*addrs.Reference
-	// TODO: Once count and for_each are actually supported, analyze their
-	// expressions for references here.
-	/*
-		if n.Config.Count != nil {
-			ret = append(ret, n.Config.Count.References()...)
-		}
-		if n.Config.ForEach != nil {
-			ret = append(ret, n.Config.ForEach.References()...)
-		}
-	*/
-	return ret
+
+	if n.ModuleCall.Count != nil {
+		refs, _ = lang.ReferencesInExpr(n.ModuleCall.Count)
+	}
+	if n.ModuleCall.ForEach != nil {
+		refs, _ = lang.ReferencesInExpr(n.ModuleCall.ForEach)
+	}
+	return appendResourceDestroyReferences(refs)
 }
 
 // RemovableIfNotTargeted implementation
